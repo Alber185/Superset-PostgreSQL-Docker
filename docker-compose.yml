@@ -1,0 +1,52 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: superset
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset
+    volumes:
+      - superset_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset -d superset"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:6
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  superset:
+    build: .
+    image: my-superset:5.0.0-custom
+    environment:
+      # Cadena SQLAlchemy para la metadata DB usada por Superset
+      SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://superset:superset@db:5432/superset
+      REDIS_URL: redis://redis:6379/0
+      SUPERSET_SECRET_KEY: 'change-me-secret'
+      SUPERSET_LOAD_EXAMPLES: 'no'
+      # Indica dónde montas el home de superset en el contenedor
+      SUPERSET_HOME: /app/superset_home
+    ports:
+      - "8088:8088"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./superset_home:/app/superset_home
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8088/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  superset_db_data:
