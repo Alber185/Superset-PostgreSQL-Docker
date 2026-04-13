@@ -2,8 +2,6 @@ import os
 
 SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY", "cámbiame-por-favor")
 
-# ENABLE_TEMPLATE_PROCESSING = True -- Obsoleto
-
 PREVENT_UNSAFE_DB_CONNECTIONS = False
 
 # ============================================================================
@@ -16,24 +14,21 @@ BABEL_DEFAULT_LOCALE = "es"
 LANGUAGES = {
     "es": {"flag": "es", "name": "Spanish"},
     "en": {"flag": "us", "name": "English"},
-    "fr": {"flag": "fr", "name": "French"},
-    "it": {"flag": "it", "name": "Italian"},
-    "zh": {"flag": "cn", "name": "Chinese"},
-    "ja": {"flag": "jp", "name": "Japanese"},
-    "de": {"flag": "de", "name": "German"},
-    "pt": {"flag": "pt", "name": "Portuguese"},
-    "pt_BR": {"flag": "br", "name": "Brazilian Portuguese"},
-    "ru": {"flag": "ru", "name": "Russian"},
-    "ko": {"flag": "kr", "name": "Korean"},
+    # "fr": {"flag": "fr", "name": "French"},
+    # "it": {"flag": "it", "name": "Italian"},
+    # "zh": {"flag": "cn", "name": "Chinese"},
+    # "ja": {"flag": "jp", "name": "Japanese"},
+    # "de": {"flag": "de", "name": "German"},
+    # "pt": {"flag": "pt", "name": "Portuguese"},
+    # "pt_BR": {"flag": "br", "name": "Brazilian Portuguese"},
+    # "ru": {"flag": "ru", "name": "Russian"},
+    # "ko": {"flag": "kr", "name": "Korean"},
 }
 
 # ============================================================================
 # CSRF
 # ============================================================================
-WTF_CSRF_ENABLED = False
-WTF_CSRF_EXEMPT_LIST = [
-    "/api/v1/security/guest_token/",
-]
+WTF_CSRF_ENABLED = False  # Desabilitado porque Superset 6 tiene problemas con exemptiones
 
 # ============================================================================
 # EMBEDDING
@@ -44,7 +39,12 @@ FEATURE_FLAGS = {
     "EMBEDDED_SUPERSET": True,
     "DASHBOARD_NATIVE_FILTERS": True,
     "DASHBOARD_CROSS_FILTERS": True,
-    "ENABLE_TEMPLATE_PROCESSING": True  # Jinja
+    "ENABLE_TEMPLATE_PROCESSING": True, #Jinja
+    "ENABLE_ROW_LEVEL_SECURITY": False,
+    
+    "DASHBOARD_FILTERS_EXPERIMENTAL": True,
+    "NATIVE_FILTERS": True,
+    "ENABLE_FILTER_BOX_MIGRATION": True,
 }
 
 # Clave JWT para embedding
@@ -65,6 +65,7 @@ CORS_OPTIONS = {
     "supports_credentials": True,
     "origins": [
         "https://localhost:44301",
+        "http://localhost:8089",
     ],
 }
 
@@ -72,11 +73,12 @@ CORS_OPTIONS = {
 # IFRAME / CSP
 # ============================================================================
 
-TALISMAN_ENABLED = False
+TALISMAN_ENABLED = True
 TALISMAN_CONFIG = {
     "content_security_policy": {
         "frame-ancestors": ["'self'", "https://localhost:44301"],
-    }
+    },
+    "force_https": False,
 }
 
 HTTP_HEADERS = {

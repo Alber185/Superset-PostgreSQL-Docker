@@ -24,7 +24,13 @@ services:
 
   superset:
     build: .
-    image: my-superset:5.0.0-custom
+    image: my-superset:6.0.0-custom
+    command: |
+      /bin/bash -c "
+      superset db upgrade &&
+      superset init &&
+      superset run -p 8088 -h 0.0.0.0
+      "
     environment:
       # Cadena SQLAlchemy para la metadata DB usada por Superset
       SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://superset:superset@db:5432/superset
@@ -34,7 +40,7 @@ services:
       # Indica dónde montas el home de superset en el contenedor
       SUPERSET_HOME: /app/superset_home
     ports:
-      - "8088:8088"
+      - "8089:8088"
     depends_on:
       - db
       - redis
@@ -50,3 +56,4 @@ services:
 
 volumes:
   superset_db_data:
+    name: superset_6_data  # <--- Nombre explícito asignado
